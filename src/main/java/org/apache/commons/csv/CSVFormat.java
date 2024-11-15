@@ -855,7 +855,8 @@ public final class CSVFormat implements Serializable {
          */
         Default(DEFAULT),
 
-        
+
+
         /**
          * The EXCEL predefined format.
          *

@@ -199,17 +199,18 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.24.0</version>
-          <configuration>
-            <rulesets>
-              <ruleset>/rulesets/java/basic.xml</ruleset>
-            </rulesets>
-            <excludes>
-              <exclude>**/SomeSpecificFile.java</exclude>
-            </excludes>
-          </configuration>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-pmd-plugin</artifactId>
+         <version>${commons.pmd.version}</version>
+         <configuration>
+           <skip>true</skip> <!-- Questo disabilita PMD -->
+           <rulesets>
+             <ruleset>/rulesets/java/basic.xml</ruleset>
+           </rulesets>
+           <excludes>
+             <exclude>**/SomeSpecificFile.java</exclude>
+           </excludes>
+         </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

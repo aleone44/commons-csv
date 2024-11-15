@@ -2578,40 +2578,57 @@ public final class CSVFormat implements Serializable {
      * @throws IllegalArgumentException Throw when any attribute is invalid or inconsistent with other attributes.
      */
     private void validate() throws IllegalArgumentException {
+        validateDelimiter();
+        validateCharacterConflicts();
+        validateQuoteMode();
+        validateHeaders();
+    }
+
+    private void validateDelimiter() {
         if (containsLineBreak(delimiter)) {
             throw new IllegalArgumentException("The delimiter cannot be a line break");
         }
-        if (quoteCharacter != null && contains(delimiter, quoteCharacter.charValue())) {  // N.B. Explicit (un)boxing is intentional
-            throw new IllegalArgumentException("The quoteChar character and the delimiter cannot be the same ('" + quoteCharacter + "')");
-        }
-        if (escapeCharacter != null && contains(delimiter, escapeCharacter.charValue())) { // N.B. Explicit (un)boxing is intentional
-            throw new IllegalArgumentException("The escape character and the delimiter cannot be the same ('" + escapeCharacter + "')");
-        }
-        if (commentMarker != null && contains(delimiter, commentMarker.charValue())) { // N.B. Explicit (un)boxing is intentional
-            throw new IllegalArgumentException("The comment start character and the delimiter cannot be the same ('" + commentMarker + "')");
-        }
+    }
+
+    private void validateCharacterConflicts() {
+        validateConflictWithDelimiter(quoteCharacter, "The quoteChar character and the delimiter cannot be the same ('%s')");
+        validateConflictWithDelimiter(escapeCharacter, "The escape character and the delimiter cannot be the same ('%s')");
+        validateConflictWithDelimiter(commentMarker, "The comment start character and the delimiter cannot be the same ('%s')");
+
         if (quoteCharacter != null && quoteCharacter.equals(commentMarker)) {
             throw new IllegalArgumentException("The comment start character and the quoteChar cannot be the same ('" + commentMarker + "')");
         }
         if (escapeCharacter != null && escapeCharacter.equals(commentMarker)) {
             throw new IllegalArgumentException("The comment start and the escape character cannot be the same ('" + commentMarker + "')");
         }
+    }
+
+    private void validateConflictWithDelimiter(Character character, String message) {
+        if (character != null && delimiter.length() == 1 && delimiter.indexOf(character) >= 0) {
+            throw new IllegalArgumentException(String.format(message, character));
+        }
+    }
+
+    private void validateQuoteMode() {
         if (escapeCharacter == null && quoteMode == QuoteMode.NONE) {
             throw new IllegalArgumentException("Quote mode set to NONE but no escape character is set");
         }
-        // Validate headers
+    }
+
+    private void validateHeaders() {
         if (headers != null && duplicateHeaderMode != DuplicateHeaderMode.ALLOW_ALL) {
             final Set<String> dupCheckSet = new HashSet<>(headers.length);
             final boolean emptyDuplicatesAllowed = duplicateHeaderMode == DuplicateHeaderMode.ALLOW_EMPTY;
+
             for (final String header : headers) {
                 final boolean blank = isBlank(header);
-                // Sanitize all empty headers to the empty string "" when checking duplicates
                 final boolean containsHeader = !dupCheckSet.add(blank ? "" : header);
+
                 if (containsHeader && !(blank && emptyDuplicatesAllowed)) {
-                    throw new IllegalArgumentException(
-                        String.format(
+                    throw new IllegalArgumentException(String.format(
                             "The header contains a duplicate name: \"%s\" in %s. If this is valid then use CSVFormat.Builder.setDuplicateHeaderMode().",
-                            header, Arrays.toString(headers)));
+                            header, Arrays.toString(headers)
+                    ));
                 }
             }
         }

@@ -204,12 +204,6 @@
          <version>${commons.pmd.version}</version>
          <configuration>
            <skip>true</skip> <!-- Questo disabilita PMD -->
-           <rulesets>
-             <ruleset>/rulesets/java/basic.xml</ruleset>
-           </rulesets>
-           <excludes>
-             <exclude>**/SomeSpecificFile.java</exclude>
-           </excludes>
          </configuration>
         </plugin>
         <plugin>
